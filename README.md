@@ -1,4 +1,4 @@
-# 🐾🎙️ Animal & Audio Emotion Detection
+# Emotion Detection
 
 A full-stack project that combines **YOLOv8 object detection** and **deep learning audio emotion recognition**, featuring both a **Flask web app** and **desktop GUIs (PyQt5 + Tkinter)**.  
 
