@@ -97,15 +97,3 @@ project-root/
 - **Frontend (Web):** Flask, HTML, CSS, JS  
 - **GUI:** PyQt5, Tkinter  
 
----
-
-## 👨‍💻 Contributors  
-
-- **You** 🚀 – Developer, ML Engineer, Integrator  
-- Open for contributions: PRs & suggestions welcome!  
-
----
-
-## 📜 License  
-
-MIT License – free for personal & commercial use.  
