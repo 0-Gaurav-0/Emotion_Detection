@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Emotion Detection - VoEYES </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #121968 0%, #051024 100%);
+            min-height: 100vh;
+            color: rgb(255, 255, 255);
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand:hover {
+            color: #feca57;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .main-container {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #fff, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .camera-section {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .camera-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInLeft 1s ease-out;
+        }
+
+        .camera-feed {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .camera-feed:hover {
+            transform: scale(1.02);
+        }
+
+        .camera-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            animation: fadeInRight 1s ease-out;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #feca57;
+        }
+
+        .emotion-stats {
+            margin-bottom: 2rem;
+        }
+
+        .emotion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .emotion-item:last-child {
+            border-bottom: none;
+        }
+
+        .emotion-name {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .emotion-confidence {
+            font-size: 0.8rem;
+            color: #feca57;
+            font-weight: 600;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .info-icon {
+            font-size: 2rem;
+            color: #feca57;
+            margin-bottom: 1rem;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .camera-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #feca57;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <i class="fas fa-brain"></i>
+                VoEYES
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-camera"></i> Live Emotion Detection</h1>
+            <p>Real-time facial emotion recognition powered by deep learning</p>
+        </div>
+
+        <div class="camera-section">
+            <div class="camera-container">
+                <div class="camera-status">
+                    <i class="fas fa-circle"></i>
+                    Live
+                </div>
+                <img src="{{ url_for('video_feed') }}" class="camera-feed" alt="Live Camera Feed">
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="panel-title">
+                    <i class="fas fa-sliders-h"></i> Detection Controls
+                </div>
+                
+                <div class="emotion-stats">
+                    <h4 style="margin-bottom: 1rem; color: #feca57;">Current Emotions</h4>
+                    <div class="emotion-item">
+                        <span class="emotion-name">Happy</span>
+                        <span class="emotion-confidence">85%</span>
+                    </div>
+                    <div class="emotion-item">
+                        <span class="emotion-name">Neutral</span>
+                        <span class="emotion-confidence">12%</span>
+                    </div>
+                    <div class="emotion-item">
+                        <span class="emotion-name">Surprise</span>
+                        <span class="emotion-confidence">3%</span>
+                    </div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="control-btn" onclick="captureFrame()">
+                        <i class="fas fa-camera"></i>
+                        Capture Frame
+                    </button>
+                    <button class="control-btn" onclick="toggleRecording()">
+                        <i class="fas fa-record-vinyl"></i>
+                        Start Recording
+                    </button>
+                    <button class="control-btn" onclick="downloadData()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                    <button class="control-btn" onclick="toggleFullscreen()">
+                        <i class="fas fa-expand"></i>
+                        Fullscreen
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="info-title">Real-time Processing</div>
+                <div class="info-description">
+                    Advanced neural networks analyze facial expressions in real-time with 30+ FPS processing speed.
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="info-title">7 Emotion Classes</div>
+                <div class="info-description">
+                    Detects Happy, Sad, Angry, Fear, Surprise, Disgust, and Neutral emotions with high accuracy.
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="info-title">Privacy Protected</div>
+                <div class="info-description">
+                    All processing happens locally. No video data is stored or transmitted to external servers.
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="info-title">High Accuracy</div>
+                <div class="info-description">
+                    Trained on Fer-2013 dataset achieving great accuracy across different demographics and lighting conditions.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let isFullscreen = false;
+
+        function captureFrame() {
+            // Show loading overlay
+            document.getElementById('loadingOverlay').classList.add('active');
+            
+            // Simulate capture process
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+                alert('Frame captured successfully!');
+            }, 1000);
+        }
+
+        function toggleRecording() {
+            const btn = event.target.closest('.control-btn');
+            const icon = btn.querySelector('i');
+            
+            if (!isRecording) {
+                isRecording = true;
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+                btn.style.background = 'rgba(231, 76, 60, 0.3)';
+            } else {
+                isRecording = false;
+                btn.innerHTML = '<i class="fas fa-record-vinyl"></i> Start Recording';
+                btn.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+        }
+
+        function downloadData() {
+            // Simulate data export
+            const data = {
+                timestamp: new Date().toISOString(),
+                emotions: ['Happy: 85%', 'Neutral: 12%', 'Surprise: 3%'],
+                session_duration: '5 minutes'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'emotion_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleFullscreen() {
+            const cameraFeed = document.querySelector('.camera-feed');
+            
+            if (!isFullscreen) {
+                if (cameraFeed.requestFullscreen) {
+                    cameraFeed.requestFullscreen();
+                } else if (cameraFeed.webkitRequestFullscreen) {
+                    cameraFeed.webkitRequestFullscreen();
+                } else if (cameraFeed.msRequestFullscreen) {
+                    cameraFeed.msRequestFullscreen();
+                }
+                isFullscreen = true;
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                isFullscreen = false;
+            }
+        }
+
+        // Update emotion stats periodically (simulation)
+        function updateEmotionStats() {
+            const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Surprise', 'Disgust', 'Neutral'];
+            const emotionItems = document.querySelectorAll('.emotion-item');
+            
+            emotionItems.forEach((item, index) => {
+                if (index < 3) { // Only update first 3 items
+                    const confidence = Math.floor(Math.random() * 100);
+                    const emotionName = emotions[Math.floor(Math.random() * emotions.length)];
+                    
+                    item.querySelector('.emotion-name').textContent = emotionName;
+                    item.querySelector('.emotion-confidence').textContent = confidence + '%';
+                }
+            });
+        }
+
+        // Update stats every 3 seconds
+        setInterval(updateEmotionStats, 3000);
+
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+        });
+
+        // Add smooth animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.info-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEDA - Visual Emotion and Detection Analyzer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #5a67d8, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .task-card {
+            background: rgba(15, 15, 35, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(90, 103, 216, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(90, 103, 216, 0.2), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+
+        .task-card:hover::before {
+            animation: shimmer 0.6s ease-out;
+        }
+
+        .task-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15), 0 0 30px rgba(90, 103, 216, 0.3);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .task-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            text-align: center;
+            background: linear-gradient(45deg, #00d4ff, #5a67d8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.3));
+        }
+
+        .task-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .task-description {
+            text-align: center;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .subtasks {
+            margin-top: 1.5rem;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subtasks.active {
+            opacity: 1;
+            max-height: 300px;
+        }
+
+        .subtask-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(90, 103, 216, 0.4);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subtask-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .subtask-btn:hover::before {
+            left: 100%;
+        }
+
+        .subtask-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(5px);
+            color: white;
+            text-decoration: none;
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+        }
+
+        .subtask-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 1px solid rgba(90, 103, 216, 0.2);
+            opacity: 0.7;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .tasks-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .task-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Color schemes for different tasks */
+        .task-card:nth-child(1) .task-icon {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));
+        }
+
+        .task-card:nth-child(2) .task-icon {
+            background: linear-gradient(45deg, #5a67d8, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(90, 103, 216, 0.4));
+        }
+
+        .task-card:nth-child(3) .task-icon {
+            background: linear-gradient(45deg, #9f7aea, #805ad5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(159, 122, 234, 0.4));
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-eye"></i> VEDA</h1>
+            <p>Visual Emotion and Detection Analyzer</p>
+        </div>
+        
+        <div class="tasks-grid">
+            <div class="task-card" onclick="toggleSubtasks('task1')">
+                <i class="fas fa-smile task-icon"></i>
+                <h2 class="task-title">Emotion Detector</h2>
+                <p class="task-description">Advanced facial emotion recognition using deep learning to detect human emotions in real-time</p>
+                
+                <div class="subtasks" id="task1">
+                    <a href="/camera_emotion" class="subtask-btn">
+                        <i class="fas fa-camera"></i>
+                        Live Camera Detection
+                    </a>
+                    <a href="/activation_maps" class="subtask-btn">
+                        <i class="fas fa-brain"></i>
+                        Visualize Neural Networks
+                    </a>
+                    <a href="/train_emotion_model" class="subtask-btn">
+                        <i class="fas fa-cogs"></i>
+                        Train Custom Model
+                    </a>
+                </div>
+            </div>
+            
+            <div class="task-card" onclick="toggleSubtasks('task2')">
+                <i class="fas fa-paw task-icon"></i>
+                <h2 class="task-title">Animal Detection</h2>
+                <p class="task-description">Intelligent animal recognition system capable of identifying various species from images and videos</p>
+                
+                <div class="subtasks" id="task2">
+                    <a href="/detect_animals_image" class="subtask-btn">
+                        <i class="fas fa-image"></i>
+                        Image Recognition
+                    </a>
+                    <a href="/detect_animals_video" class="subtask-btn">
+                        <i class="fas fa-video"></i>
+                        Video Analysis
+                    </a>
+                    <a href="/train_animal_model" class="subtask-btn">
+                        <i class="fas fa-dumbbell"></i>
+                        Model Training
+                    </a>
+                </div>
+            </div>
+            
+            <div class="task-card" onclick="toggleSubtasks('task3')">
+                <i class="fas fa-microphone-alt task-icon"></i>
+                <h2 class="task-title">Voice Emotion Detection</h2>
+                <p class="task-description">Sophisticated audio analysis to detect emotional states from voice patterns and speech characteristics</p>
+                
+                <div class="subtasks" id="task3">
+                    <a href="/upload_audio" class="subtask-btn">
+                        <i class="fas fa-upload"></i>
+                        Upload Audio File
+                    </a>
+                    <a href="/record_audio" class="subtask-btn">
+                        <i class="fas fa-microphone"></i>
+                        Record Live Audio
+                    </a>
+                    <a href="/train_voice_model" class="subtask-btn">
+                        <i class="fas fa-chart-line"></i>
+                        Train Voice Model
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-code"></i> Built with modern web technologies and machine learning</p>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 6 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function toggleSubtasks(taskId) {
+            const subtasks = document.getElementById(taskId);
+            const allSubtasks = document.querySelectorAll('.subtasks');
+            
+            // Close all other subtasks
+            allSubtasks.forEach(task => {
+                if (task.id !== taskId) {
+                    task.classList.remove('active');
+                }
+            });
+            
+            // Toggle current subtask
+            subtasks.classList.toggle('active');
+        }
+
+        // Add stagger animation to task cards
+        function animateCards() {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = (index * 0.2) + 's';
+                card.style.animation = 'fadeInDown 0.6s ease-out forwards';
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            animateCards();
+        });
+
+        // Add click ripple effect
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.task-card') || e.target.closest('.subtask-btn')) {
+                const element = e.target.closest('.task-card') || e.target.closest('.subtask-btn');
+                const ripple = document.createElement('div');
+                const rect = element.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255,255,255,0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                
+                element.style.position = 'relative';
+                element.style.overflow = 'hidden';
+                element.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            }
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

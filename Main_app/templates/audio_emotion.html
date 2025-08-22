@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Emotion Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background: #d9534f;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        main {
+            margin-top: 30px;
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            background: #d9534f;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background: #a32f2c;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 12px;
+            background: #ffecec;
+            border: 1px solid #f5c2c0;
+            border-radius: 8px;
+            color: #333;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        🎙️ Audio Emotion Detection
+    </header>
+    <main>
+        <h2>Upload an Audio File</h2>
+        <form action="/audio_emotion" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="audio/*" required>
+            <br>
+            <button type="submit">Upload & Analyze</button>
+        </form>
+
+        <h2>Record Live Audio</h2>
+        <form action="/record_audio" method="get">
+            <button type="submit">Start Recording</button>
+        </form>
+
+        {% if result %}
+        <div class="result">
+            <h3>Detection Result:</h3>
+            <p>{{ result }}</p>
+        </div>
+        {% endif %}
+
+        <a href="/" class="back-link">⬅ Back to Home</a>
+    </main>
+</body>
+</html>
