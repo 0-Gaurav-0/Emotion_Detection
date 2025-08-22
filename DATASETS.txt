@@ -1,0 +1,20 @@
+Datasets Used in This Project
+=============================
+
+Task 1 – Facial Emotion Detection
+---------------------------------
+- Dataset: FER-2013
+- Link: https://www.kaggle.com/datasets/deadskull7/fer2013
+- Description: A widely used dataset containing 35,887 grayscale images of facial expressions across 7 emotion classes.
+
+Task 2 – Animal Detection
+-------------------------
+- Dataset: Animals (YOLOv5)
+- Link: https://universe.roboflow.com/yolo-2xmbu/animals-yolov5-gslnk/dataset/1
+- Description: Custom object detection dataset for animal classification trained in YOLO format.
+
+Task 3 – Audio Emotion Recognition
+----------------------------------
+- Dataset: RAVDESS (Ryerson Audio-Visual Database of Emotional Speech and Song)
+- Link: https://zenodo.org/records/1188976
+- Description: A high-quality dataset of 24 actors producing emotional speech and song recordings with 8 emotion classes.

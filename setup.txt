@@ -1,0 +1,43 @@
+ML_PROJECT/
+│
+├── Main_app/                 # Main Web Application (UI + Backend)
+│   ├── templates/            # HTML templates for the web UI
+│   │   ├── camera_emotion.html
+│   │   ├── coming_soon.html
+│   │   ├── error.html
+│   │   ├── index.html
+│   │   └── modern_ml_dashboard.html
+│   ├── app.py                # Main Flask/Django app entry point
+│   └── venv/                 # Virtual environment for Main_app
+│
+├── Task1/                    # Task 1 – Emotion Detection (Image/Camera)
+│   ├── emotion_app.py        # Run trained emotion detection model
+│   ├── training_c.py         # Training script for emotion recognition
+│   ├── predict_emotion_realtime.py # Real-time prediction (camera feed)
+│   ├── emotion_model.h5      # Saved trained model
+│   ├── activation_maps.py    # Visualization of CNN feature maps
+│   ├── Data/                 # Dataset used for training
+│   ├── venv/                 # Virtual environment for Task1
+│   └── other files...
+│
+├── Task2/                    # Task 2 – Animal Detection (YOLOv8)
+│   ├── train.py              # Training script for YOLO model
+│   ├── check.py              # Testing script
+│   ├── animal.py             # Inference script (animal detection)
+│   ├── cifar10_project/      # Dataset/project-related files
+│   ├── dataset/              # Training/validation dataset
+│   ├── runs/                 # YOLO training runs/logs
+│   ├── yolov8n.pt            # Pre-trained YOLOv8 weights
+│   ├── venv/                 # Virtual environment for Task2
+│   └── requirements.txt      # Dependencies for Task2
+│
+└── Task3/                    # Task 3 – Audio Emotion Recognition
+    ├── train.py              # Model training script
+    ├── female_emotion.py     # Inference script
+    ├── dataset.py            # Dataset preprocessing
+    ├── extract_features.py   # Audio feature extraction (MFCC, etc.)
+    ├── RAVDESS_Audio/        # Audio dataset (RAVDESS or similar)
+    ├── models/               # Trained models
+    ├── female_emotion_dataset.csv # Processed dataset
+    ├── venv/                 # Virtual environment for Task3
+    └── other files...
